@@ -1,6 +1,6 @@
 # Revisão de Estrutura de Árvores
 
-**Nome:** Giovanna Nascimento Lima
+**Nome:** isabela cristina araujo
 **Disciplina:** Estrutura de Dados II
 **Professora:** Profa. Kadidja Valéria
 **Turma:** D1
