@@ -1,0 +1,152 @@
+
+# ==========================================
+# SIMULADOR DE FILA DE CLÍNICA / HOSPITAL
+# ==========================================
+
+def relatorio_expediente():
+    print("=== RELATÓRIO DO DIA NO HOSPITAL ===")
+    
+    # Começa com a lista vazia
+    fila_espera = []
+    print(f"Início do dia - Fila inicial: {fila_espera}")
+
+    # Adicionando pacientes
+    chegadas = ["Carlos Silva", "Ana Souza", "Marcos Lima", "Fernanda Rocha"]
+    for p in chegadas:
+        fila_espera.append(p)
+        print(f"Entrou na fila: {p}")
+
+    # Mostra quem tá esperando
+    print(f"\nFila atual ({len(fila_espera)} pessoas): {fila_espera}\n")
+
+    # Atendendo o pessoal (removendo do começo)
+    print("--- COMEÇANDO OS ATENDIMENTOS ---")
+    while len(fila_espera) > 0:
+        atual = fila_espera[0]
+        print(f"Atendendo agora: {atual}")
+        fila_espera.remove(atual)
+        print(f"Quem sobrou na espera: {fila_espera}")
+
+    # Fim do dia
+    print(f"\nFim do expediente. Fila final: {fila_espera}\n")
+
+# Rodando a primeira parte
+relatorio_expediente()
+
+
+# ==========================================
+# ESTRUTURA DE NÓ E FILA COM URGÊNCIA
+# ==========================================
+
+class Node:
+    def __init__(self, paciente: str, urgente: bool = False):
+        self.paciente = paciente
+        self.urgente = urgente
+        self.proximo = None
+
+
+class FilaHospital:
+    def __init__(self):
+        self.inicio = None
+        self.fim = None
+        self.total = 0
+
+    def esta_vazia(self) -> bool:
+        return self.inicio is None
+
+    def adicionar(self, nome: str, urgente: bool = False):
+        novo = Node(paciente=nome, urgente=urgente)
+        
+        # Se a fila tá vazia
+        if self.esta_vazia():
+            self.inicio = novo
+            self.fim = novo
+            self.total += 1
+            print(f"Adicionado: {nome}" + (" (URGÊNCIA)" if urgente else ""))
+            return
+
+        # Regra de urgência (fura a fila dos normais, mas respeita quem já é urgente)
+        if urgente:
+            if not self.inicio.urgente:
+                novo.proximo = self.inicio
+                self.inicio = novo
+            else:
+                atual = self.inicio
+                while atual.proximo and atual.proximo.urgente:
+                    atual = atual.proximo
+                
+                novo.proximo = atual.proximo
+                atual.proximo = novo
+                if novo.proximo is None:
+                    self.fim = novo
+        else:
+            # Vai pro fim da fila normal
+            self.fim.proximo = novo
+            self.fim = novo
+
+        self.total += 1
+        print(f"Adicionado: {nome}" + (" (URGÊNCIA)" if urgente else ""))
+
+    def atender(self):
+        if self.esta_vazia():
+            print("Nenhum paciente na fila.")
+            return None
+        
+        atendido = self.inicio.paciente
+        self.inicio = self.inicio.proximo
+        
+        if self.inicio is None:
+            self.fim = None
+
+        self.total -= 1
+        print(f"Chamando paciente: {atendido}")
+        return atendido
+
+    def listar_espera(self):
+        if self.esta_vazia():
+            print("Fila de espera: [Vazia]")
+            return
+
+        atual = self.inicio
+        espera = []
+        while atual is not None:
+            tag = " (Urgente)" if atual.urgente else ""
+            espera.append(f"{atual.paciente}{tag}")
+            atual = atual.proximo
+        
+        print("Fila atual: " + " -> ".join(espera))
+
+
+# ==========================================
+# TESTANDO O SISTEMA
+# ==========================================
+print("\n--- TESTES DA CLÍNICA ---")
+clinica = FilaHospital()
+
+print("\n1. Chegada de pacientes normais:")
+clinica.adicionar("João")
+clinica.adicionar("Maria")
+clinica.adicionar("Pedro")
+clinica.listar_espera()
+
+print("\n2. Chegada de urgência:")
+clinica.adicionar("Dra. Beatriz (Infarto)", urgente=True)
+clinica.listar_espera()
+
+print("\n3. Atendendo o pessoal:")
+clinica.atender()
+clinica.atender()
+clinica.listar_espera()
+
+print("\n4. Chega outra urgência:")
+clinica.adicionar("Carla (Fratura Exposta)", urgente=True)
+clinica.listar_espera()
+
+print("\nEsvaziando a fila:")
+while not clinica.esta_vazia():
+    clinica.atender()
+
+print("\n5. Conferindo lista no final:")
+clinica.listar_espera()
+
+```
